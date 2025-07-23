@@ -49,7 +49,8 @@ class DocumentUploadRequest(BaseModel):
 
 class GraphState(TypedDict):
     """Represents the state of our graph"""
-    question: str
+    user_prompt: str
     generation: str
     web_search_needed: str
     documents: List[str]
+    search_queries: str

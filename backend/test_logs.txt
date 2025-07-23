@@ -1,0 +1,14 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.18, pytest-8.4.1, pluggy-1.6.0 -- /home/conturna/miniconda3/envs/rag/bin/python3.10
+cachedir: .pytest_cache
+rootdir: /home/conturna/repos/projects/research-helper/backend
+plugins: anyio-4.9.0, langsmith-0.4.3
+collecting ... collected 5 items
+
+tests/test_main_api.py::test_create_user PASSED                          [ 20%]
+tests/test_main_api.py::test_upload_documents_url PASSED                 [ 40%]
+tests/test_main_api.py::test_upload_documents_file PASSED                [ 60%]
+tests/test_main_api.py::test_query_endpoint PASSED                       [ 80%]
+tests/test_main_api.py::test_get_history PASSED                          [100%]
+
+============================== 5 passed in 2.98s ===============================

@@ -1,0 +1,197 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.18, pytest-8.4.1, pluggy-1.6.0 -- /home/conturna/miniconda3/envs/rag/bin/python3.10
+cachedir: .pytest_cache
+rootdir: /home/conturna/repos/projects/research-helper/backend
+plugins: anyio-4.9.0, langsmith-0.4.3
+collecting ... collected 5 items
+
+tests/test_main_api.py::test_create_user PASSED                          [ 20%]
+tests/test_main_api.py::test_upload_documents_url FAILED                 [ 40%]
+tests/test_main_api.py::test_upload_documents_file PASSED                [ 60%]
+tests/test_main_api.py::test_query_endpoint PASSED                       [ 80%]
+tests/test_main_api.py::test_get_history FAILED                          [100%]
+
+=================================== FAILURES ===================================
+__________________________ test_upload_documents_url ___________________________
+
+mock_add_docs = <MagicMock name='add_documents_for_user' id='139712246999904'>
+test_client = <starlette.testclient.TestClient object at 0x7f114ada74f0>
+
+    @patch('app.user_management.user_manager.UserManager.add_documents_for_user')
+    def test_upload_documents_url(mock_add_docs, test_client: TestClient):
+        """Test document upload via URL."""
+        test_client.post("/users/create", params={"user_id": "test_user_2"})
+        mock_add_docs.return_value = 10  # Simulate adding 10 document chunks
+    
+        response = test_client.post(
+            "/documents/upload",
+            params={
+                "user_id": "test_user_2",
+                "urls": ["http://example.com"]
+            }
+        )
+        assert response.status_code == 201
+        assert response.json() == {"message": "Successfully added 10 document chunks."}
+        # Check if the mocked function was called correctly
+>       mock_add_docs.assert_called_with(
+            user_id="test_user_2",
+            web_urls=["http://example.com"],
+            local_files=[]
+        )
+
+tests/test_main_api.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <MagicMock name='add_documents_for_user' id='139712246999904'>, args = ()
+kwargs = {'local_files': [], 'user_id': 'test_user_2', 'web_urls': ['http://example.com']}
+expected = call(user_id='test_user_2', web_urls=['http://example.com'], local_files=[])
+actual = call(user_id='test_user_2', web_urls=[], local_files=[])
+_error_message = <function NonCallableMock.assert_called_with.<locals>._error_message at 0x7f114abd88b0>
+cause = None
+
+    def assert_called_with(self, /, *args, **kwargs):
+        """assert that the last call was made with the specified arguments.
+    
+        Raises an AssertionError if the args and keyword args passed in are
+        different to the last call to the mock."""
+        if self.call_args is None:
+            expected = self._format_mock_call_signature(args, kwargs)
+            actual = 'not called.'
+            error_message = ('expected call not found.\nExpected: %s\nActual: %s'
+                    % (expected, actual))
+            raise AssertionError(error_message)
+    
+        def _error_message():
+            msg = self._format_mock_failure_message(args, kwargs)
+            return msg
+        expected = self._call_matcher(_Call((args, kwargs), two=True))
+        actual = self._call_matcher(self.call_args)
+        if actual != expected:
+            cause = expected if isinstance(expected, Exception) else None
+>           raise AssertionError(_error_message()) from cause
+E           AssertionError: expected call not found.
+E           Expected: add_documents_for_user(user_id='test_user_2', web_urls=['http://example.com'], local_files=[])
+E           Actual: add_documents_for_user(user_id='test_user_2', web_urls=[], local_files=[])
+
+../../../../miniconda3/envs/rag/lib/python3.10/unittest/mock.py:929: AssertionError
+_______________________________ test_get_history _______________________________
+
+mock_query = <MagicMock name='query_user_documents' id='139712227275392'>
+test_client = <starlette.testclient.TestClient object at 0x7f1149ad7970>
+
+    @patch('app.user_management.user_manager.UserManager.query_user_documents')
+    def test_get_history(mock_query, test_client: TestClient):
+        """Test the chat history endpoint."""
+        user_id = "test_user_5"
+        test_client.post("/users/create", params={"user_id": user_id})
+    
+        # First query to populate history
+>       test_client.post("/query", json={"user_id": user_id, "question": "First question"})
+
+tests/test_main_api.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/testclient.py:552: in post
+    return super().post(
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/httpx/_client.py:1144: in post
+    return self.request(
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/testclient.py:451: in request
+    return super().request(
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/httpx/_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/httpx/_client.py:914: in send
+    response = self._send_handling_auth(
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/httpx/_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/httpx/_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/httpx/_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/testclient.py:354: in handle_request
+    raise exc
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/testclient.py:351: in handle_request
+    portal.call(self.app, scope, receive, send)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/anyio/from_thread.py:290: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+../../../../miniconda3/envs/rag/lib/python3.10/concurrent/futures/_base.py:458: in result
+    return self.__get_result()
+../../../../miniconda3/envs/rag/lib/python3.10/concurrent/futures/_base.py:403: in __get_result
+    raise self._exception
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/anyio/from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/fastapi/applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/middleware/exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/routing.py:736: in app
+    await route.handle(scope, receive, send)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/routing.py:290: in handle
+    await self.app(scope, receive, send)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/routing.py:78: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/starlette/routing.py:75: in app
+    response = await f(request)
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/fastapi/routing.py:328: in app
+    content = await serialize_response(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def serialize_response(
+        *,
+        field: Optional[ModelField] = None,
+        response_content: Any,
+        include: Optional[IncEx] = None,
+        exclude: Optional[IncEx] = None,
+        by_alias: bool = True,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+        is_coroutine: bool = True,
+    ) -> Any:
+        if field:
+            errors = []
+            if not hasattr(field, "serialize"):
+                # pydantic v1
+                response_content = _prepare_response_content(
+                    response_content,
+                    exclude_unset=exclude_unset,
+                    exclude_defaults=exclude_defaults,
+                    exclude_none=exclude_none,
+                )
+            if is_coroutine:
+                value, errors_ = field.validate(response_content, {}, loc=("response",))
+            else:
+                value, errors_ = await run_in_threadpool(
+                    field.validate, response_content, {}, loc=("response",)
+                )
+            if isinstance(errors_, list):
+                errors.extend(errors_)
+            elif errors_:
+                errors.append(errors_)
+            if errors:
+>               raise ResponseValidationError(
+                    errors=_normalize_errors(errors), body=response_content
+                )
+E               fastapi.exceptions.ResponseValidationError: 2 validation errors:
+E                 {'type': 'string_type', 'loc': ('response', 'message_id'), 'msg': 'Input should be a valid string', 'input': <MagicMock name='query_user_documents().message_id' id='139712226964624'>}
+E                 {'type': 'string_type', 'loc': ('response', 'answer'), 'msg': 'Input should be a valid string', 'input': <MagicMock name='query_user_documents().answer' id='139712236875456'>}
+
+../../../../miniconda3/envs/rag/lib/python3.10/site-packages/fastapi/routing.py:177: ResponseValidationError
+=========================== short test summary info ============================
+FAILED tests/test_main_api.py::test_upload_documents_url - AssertionError: ex...
+FAILED tests/test_main_api.py::test_get_history - fastapi.exceptions.Response...
+========================= 2 failed, 3 passed in 3.39s ==========================

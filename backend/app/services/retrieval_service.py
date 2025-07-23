@@ -1,6 +1,8 @@
 import os
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
+from dotenv import load_dotenv
+load_dotenv()
 
 class Config:
     GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
