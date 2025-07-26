@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 const ChatWindow = () => {
     const [messages, setMessages] = useState<ChatMessageType[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [inputValue, setInputValue] = useState('');
     const { userId, isLoading: isUserLoading } = useUser();
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -39,33 +40,37 @@ const ChatWindow = () => {
         }
     }, [userId]);
 
-    const handleSendMessage = async (question: string) => {
-        if (!userId) return;
+    const handleSendMessage = async () => {
+        if (!userId || !inputValue.trim()) return;
 
         setIsLoading(true);
+        const msgText = inputValue;
         const userMessage: ChatMessageType = {
             message_id: uuidv4(),
             user_id: userId,
             timestamp: new Date().toISOString(),
-            question,
+            question: msgText,
             answer: '',
             isUserMessage: true,
             search_performed: false
         };
         setMessages(prev => [...prev, userMessage]);
+        setInputValue('');
 
         try {
-            const response = await postQuery(userId, question, true);
+            const response = await postQuery(userId, msgText, true);
             const aiMessage: ChatMessageType = {
                 ...response,
                 user_id: userId,
-                question: question,
+                question: msgText,
                 timestamp: new Date().toISOString(),
             };
             setMessages(prev => [...prev, aiMessage]);
         } catch (error) {
             toast.error('Failed to get a response from the assistant.');
             setMessages(prev => prev.slice(0, -1));
+            setInputValue(msgText);
+
         } finally {
             setIsLoading(false);
         }
@@ -83,7 +88,7 @@ const ChatWindow = () => {
                 ))}
                 <div ref={messagesEndRef} />
             </div>
-            <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+            <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} inputValue={inputValue} setInputValue={setInputValue}/>
         </div>
     );
 };

@@ -6,20 +6,24 @@ import { Send } from 'lucide-react';
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   isLoading: boolean;
+  inputValue: string;
+  setInputValue: (value: string) => void;
 }
 
-const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
-  const [input, setInput] = useState('');
+const ChatInput = ({ onSendMessage, isLoading, inputValue, setInputValue}: ChatInputProps) => {
+  // const [input, setInput] = useState('');
 
   const handleSend = () => {
-    if (input.trim() && !isLoading) {
-      onSendMessage(input);
-      setInput('');
+    if (inputValue.trim() && !isLoading) {
+      onSendMessage(inputValue);
     }
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSend();
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   return (
@@ -27,8 +31,8 @@ const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
       <div className="relative">
         <input
           type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Ask a question about your documents..."
           className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-full"
@@ -36,7 +40,7 @@ const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
         />
         <button
           onClick={handleSend}
-          disabled={isLoading}
+          disabled={isLoading || !inputValue.trim()}
           className="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 text-white p-2.5 rounded-full hover:bg-indigo-700 disabled:bg-indigo-300"
         >
           {isLoading ? (
